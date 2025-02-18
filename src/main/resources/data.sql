@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS dinosaurs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    species VARCHAR(255) NOT NULL,
+    discovery_date TIMESTAMP NOT NULL,
+    extinction_date TIMESTAMP NOT NULL,
+    status VARCHAR(20) NOT NULL
+    );
