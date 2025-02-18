@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -20,8 +21,11 @@ public class DinosaurJpaRepositoryAdapter implements DinosaurRepositoryPort {
 
     private final DinosaurJpaRepository jpaRepository;
 
-    public DinosaurJpaRepositoryAdapter(DinosaurJpaRepository jpaRepository) {
+    private final Publisher publisher;
+
+    public DinosaurJpaRepositoryAdapter(DinosaurJpaRepository jpaRepository, Publisher publisher) {
         this.jpaRepository = jpaRepository;
+        this.publisher = publisher;
     }
 
     @Override
@@ -58,6 +62,7 @@ public class DinosaurJpaRepositoryAdapter implements DinosaurRepositoryPort {
         dinosaurEntity.setSpecies(dinosaur.getSpecies());
         dinosaurEntity.setDiscoveryDate(dinosaur.getDiscoveryDate());
         dinosaurEntity.setExtinctionDate(dinosaur.getExtinctionDate());
+        dinosaurEntity.setStatus(dinosaur.getStatus());
         return DinosaurEntityMapper.toDomain(jpaRepository.save(dinosaurEntity));
     }
 
@@ -81,7 +86,7 @@ public class DinosaurJpaRepositoryAdapter implements DinosaurRepositoryPort {
         }
     }
 
-    @Scheduled(fixedRate = 200000) // Cada 10 minutos
+    @Scheduled(fixedRate = 600000) // Cada 10 minutos
     public void updateDinosaurStatus() {
         LocalDateTime now = LocalDateTime.now();
         log.info("Updating dinosaur status");
@@ -94,13 +99,25 @@ public class DinosaurJpaRepositoryAdapter implements DinosaurRepositoryPort {
                     && (dino.getExtinctionDate().isBefore(now))) {
                 dino.setStatus(Status.ENDANGERED);
                 jpaRepository.save(dino);
+                sendMessageToQueue(dino);
             }
 
             if (dino.getExtinctionDate().isAfter(now) || dino.getExtinctionDate().equals(now)) {
                 dino.setStatus(Status.EXTINCT);
                 jpaRepository.save(dino);
+                sendMessageToQueue(dino);
             }
         }
+    }
+
+    private void sendMessageToQueue(DinosaurEntity dinosaurEntity) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        String formattedDate = LocalDateTime.now().format(formatter);
+        MessageDto messageDto = MessageDto.builder()
+                .dinosaurId(dinosaurEntity.getId())
+                .newStatus(dinosaurEntity.getStatus())
+                .timestamp(formattedDate).build();
+        publisher.sendMessage(messageDto);
     }
 
 }

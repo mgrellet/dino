@@ -1,0 +1,27 @@
+
+services:
+  rabbit:
+    image: rabbitmq:management
+    container_name: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: . # Dockerfile location
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      SPRING_RABBITMQ_HOST: rabbit
+    depends_on:
+      rabbit:
+        condition: service_healthy
