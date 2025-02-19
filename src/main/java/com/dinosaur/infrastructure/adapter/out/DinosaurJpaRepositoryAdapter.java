@@ -77,7 +77,8 @@ public class DinosaurJpaRepositoryAdapter implements DinosaurRepositoryPort {
             throw new IllegalArgumentException("Dinosaur already exists");
         }
 
-        if (dinosaur.getDiscoveryDate().isAfter(dinosaur.getExtinctionDate())) {
+        if (dinosaur.getDiscoveryDate().isAfter(dinosaur.getExtinctionDate())
+                || dinosaur.getDiscoveryDate().equals(dinosaur.getExtinctionDate())) {
             throw new IllegalArgumentException("Discovery date must be before extinction date");
         }
 

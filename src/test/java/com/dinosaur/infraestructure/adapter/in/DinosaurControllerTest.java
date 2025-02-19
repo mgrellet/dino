@@ -17,11 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -56,7 +54,7 @@ public class DinosaurControllerTest {
     }
 
     @Test
-    void testcreateDinosaur() throws Exception {
+    void testCreateDinosaur() throws Exception {
 
         when(dinosaurService.createDinosaur(any(Dinosaur.class))).thenReturn(dinosaur);
 
@@ -64,9 +62,20 @@ public class DinosaurControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dinosaur)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name", is("Dinosaur")))
-                .andExpect(jsonPath("$.species", is("Dinosaur")))
-                .andExpect(jsonPath("$.status", is("ALIVE")));
+                .andExpect(jsonPath("$.data.name", is("Dinosaur")))
+                .andExpect(jsonPath("$.data.species", is("Dinosaur")))
+                .andExpect(jsonPath("$.data.status", is("ALIVE")));
+    }
+
+    @Test
+    void testCreateDinosaur_Error() throws Exception {
+        doThrow(new RuntimeException())
+                .when(dinosaurService).createDinosaur(any(Dinosaur.class));
+        mockMvc.perform(post("/dinosaur")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dinosaur)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message", is("Error while creating Dinosaur")));
     }
 
     @Test
@@ -76,22 +85,38 @@ public class DinosaurControllerTest {
 
         mockMvc.perform(get("/dinosaur"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is("Dinosaur")))
-                .andExpect(jsonPath("$[0].species", is("Dinosaur")))
-                .andExpect(jsonPath("$[0].status", is("ALIVE")));
+                .andExpect(jsonPath("$.data.[0].name", is("Dinosaur")))
+                .andExpect(jsonPath("$.data.[0].species", is("Dinosaur")))
+                .andExpect(jsonPath("$.data.[0].status", is("ALIVE")));
     }
 
     @Test
-    void testObtenerPorId() throws Exception {
+    void testGetAll_Error() throws Exception {
+        doThrow(new RuntimeException())
+                .when(dinosaurService).getAll();
+        mockMvc.perform(get("/dinosaur"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message", is("Error while getting Dinosaurs")));
+    }
+
+    @Test
+    void getById() throws Exception {
 
         Mockito.when(dinosaurService.getById(anyLong())).thenReturn(dinosaur);
 
         mockMvc.perform(get("/dinosaur/{id}", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is("Dinosaur")))
-                .andExpect(jsonPath("$.species", is("Dinosaur")))
-                .andExpect(jsonPath("$.status", is("ALIVE")));
+                .andExpect(jsonPath("$.data.name", is("Dinosaur")))
+                .andExpect(jsonPath("$.data.species", is("Dinosaur")))
+                .andExpect(jsonPath("$.data.status", is("ALIVE")));
+    }
+
+    @Test
+    void getById_Error() throws Exception {
+        doThrow(new RuntimeException()).when(dinosaurService).getById(anyLong());
+        mockMvc.perform(get("/dinosaur/{id}", 1L))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message", is("Error while getting Dinosaur")));
     }
 
     @Test
@@ -110,9 +135,19 @@ public class DinosaurControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dinosaur)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is("Dinosaur updated")))
-                .andExpect(jsonPath("$.species", is("Dinosaur updated")))
-                .andExpect(jsonPath("$.status", is("ALIVE")));
+                .andExpect(jsonPath("$.data.name", is("Dinosaur updated")))
+                .andExpect(jsonPath("$.data.species", is("Dinosaur updated")))
+                .andExpect(jsonPath("$.data.status", is("ALIVE")));
+    }
+
+    @Test
+    void testUpdate_Error() throws Exception {
+        doThrow(new RuntimeException()).when(dinosaurService).update(anyLong(), any(Dinosaur.class));
+        mockMvc.perform(put("/dinosaur/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dinosaur)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message", is("Error while updating Dinosaur")));
     }
 
     @Test
@@ -120,6 +155,14 @@ public class DinosaurControllerTest {
         mockMvc.perform(delete("/dinosaur/{id}", 1L))
                 .andExpect(status().isNoContent());
         Mockito.verify(dinosaurService, times(1)).delete(1L);
+    }
+
+    @Test
+    void testDelete_Error() throws Exception {
+        doThrow(new RuntimeException()).when(dinosaurService).delete(anyLong());
+        mockMvc.perform(delete("/dinosaur/{id}", 1L))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message", is("Error while deleting Dinosaur")));
     }
 
 }
