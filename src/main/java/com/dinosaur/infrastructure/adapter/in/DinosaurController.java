@@ -2,6 +2,9 @@ package com.dinosaur.infrastructure.adapter.in;
 
 import com.dinosaur.application.port.in.DinosaurService;
 import com.dinosaur.domain.Dinosaur;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,11 @@ public class DinosaurController {
         this.dinosaurService = dinosaurService;
     }
 
+    @Operation(summary = "Create a new Dinosaur")
+    @ApiResponse(responseCode = "201", description = "Dinosaur created successfully",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json"))
     @PostMapping
     public ResponseEntity<Response> createDinosaur(@RequestBody Dinosaur dinosaur) {
         try {
@@ -45,6 +53,11 @@ public class DinosaurController {
         }
     }
 
+    @Operation(summary = "Gets the list of Dinosaurs")
+    @ApiResponse(responseCode = "200", description = "Dinosaurs retrieved successfully",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json"))
     @GetMapping
     public ResponseEntity<Response> getAll() {
         try {
@@ -65,6 +78,11 @@ public class DinosaurController {
         }
     }
 
+    @Operation(summary = "Gets specific Dinosaurs by id")
+    @ApiResponse(responseCode = "200", description = "Dinosaur retrieved successfully",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json"))
     @GetMapping("/{id}")
     public ResponseEntity<Response> getById(@PathVariable Long id) {
         try {
@@ -85,6 +103,11 @@ public class DinosaurController {
         }
     }
 
+    @Operation(summary = "Update a specific Dinosaurs by id")
+    @ApiResponse(responseCode = "200", description = "Dinosaur updated successfully",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json"))
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(@PathVariable Long id,
                                            @RequestBody Dinosaur dinosaur) {
@@ -106,6 +129,11 @@ public class DinosaurController {
         }
     }
 
+    @Operation(summary = "Delete a specific Dinosaurs by id")
+    @ApiResponse(responseCode = "204", description = "Dinosaur deleted successfully",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json"))
     @DeleteMapping("/{id}")
     public ResponseEntity<Response> delete(@PathVariable Long id) {
         try {

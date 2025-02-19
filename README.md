@@ -134,6 +134,10 @@ Content-Type: application/json
 }
 ```
 
+### Swagger documentation
+
+You can access the Swagger documentation at: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
 ## Technologies
 - **Java 17**
 - **Spring Boot**
