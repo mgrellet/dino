@@ -1,5 +1,5 @@
 
-# Dinosaurs Application application
+# Dinosaurs Application
 
 ![Spring Boot Logo](https://img.shields.io/badge/SpringBoot-Dinosaurs-6DB33F?style=for-the-badge&logo=springboot)
 
