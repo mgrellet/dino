@@ -125,7 +125,7 @@ Content-Type: application/json
   "status": 200,
   "data": {
     "id": 1,
-    "name": "TREX",
+    "name": "T-Rex",
     "species": "Theropod",
     "discoveryDate": "1902-01-01T23:59:59",
     "extinctionDate": "2023-12-31T23:59:59",
