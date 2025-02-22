@@ -41,7 +41,7 @@ Make sure you have the following installed:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/mgrellet/dino
+git clone https://github.com/mgrellet/dino.git
 cd dino
 ```
 
